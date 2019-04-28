@@ -1,6 +1,6 @@
-# Frontend
+# frontend
 
-> clickandlunch frontend
+> My praiseworthy Nuxt.js project
 
 ## Build Setup
 
