@@ -13,7 +13,6 @@
     "precommit": "npm run lint",
     "test": "jest"
   },
-<<<<<<< HEAD
   "dependencies": {
     "cross-env": "^5.2.0",
     "nuxt": "^2.4.0",
@@ -45,12 +44,5 @@
     "babel-jest": "^24.1.0",
     "jest": "^24.1.0",
     "vue-jest": "^3.0.3"
-=======
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.16.4",
-    "socket.io": "^2.1.1"
->>>>>>> c0d7746f0ed76d609dfafec1c9e108a0df910318
   }
 }
