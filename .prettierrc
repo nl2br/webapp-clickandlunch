@@ -1,4 +1,14 @@
 {
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "htmlWhitespaceSensitivity": "ignore",
+  "endOfLine": "auto",
+  "vue/html-closing-bracket-spacing": [
+    "error",
+    {
+      "startTag": "always",
+      "endTag": "always",
+      "selfClosingTag": "always"
+    }
+  ]
 }
