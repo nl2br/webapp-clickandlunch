@@ -6,10 +6,11 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
+    "dev-debug": "node --inspect node_modules/.bin/nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "precommit": "npm run lint",
     "test": "jest"
   },
@@ -18,6 +19,7 @@
     "cross-env": "^5.2.0",
     "dotenv": "^7.0.0",
     "nuxt": "^2.4.0",
+    "vue-i18n": "^8.11.1",
     "vuetify": "^1.5.5",
     "vuetify-loader": "^1.2.1"
   },

@@ -1,6 +1,9 @@
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin'
 import pkg from './package'
 
+if (process.env.NODE_ENV !== 'production') require('dotenv').config()
+console.log('TCL: process.env.NODE_ENV', process.env.NODE_ENV)
+
 export default {
   mode: 'universal',
 
@@ -34,10 +37,16 @@ export default {
    */
   css: ['~/assets/style/app.styl'],
 
+  router: {
+    middleware: 'i18n'
+  },
+  generate: {
+    routes: ['/', '/signin', '/fr', '/fr/signin']
+  },
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['@/plugins/vuetify'],
+  plugins: ['@/plugins/vuetify', '~/plugins/i18n.js'],
 
   /*
    ** Nuxt.js modules
@@ -78,5 +87,8 @@ export default {
         })
       }
     }
+  },
+  env: {
+    localApiUrl: process.env.LOCAL_API_URL
   }
 }
