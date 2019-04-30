@@ -1,5 +1,10 @@
 <template>
   <v-flex xs12 sm8 md4>
+    <v-card :color="isLoggedIn ? 'success' : 'warning'" class="mb-4">
+      <v-card-text>
+        {{ isLoggedIn ? 'User is logged' : 'User has to login' }}
+      </v-card-text>
+    </v-card>
     <v-card class="elevation-12">
       <v-toolbar dark color="primary">
         <v-toolbar-title>{{ $t('login.title') }}</v-toolbar-title>
@@ -7,10 +12,10 @@
       <v-card-text>
         <v-form>
           <v-text-field
-            v-model="login"
+            v-model="email"
             prepend-icon="person"
-            name="login"
-            label="Login"
+            name="email"
+            label="Email"
             type="text"
           ></v-text-field>
           <v-text-field
@@ -32,35 +37,44 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { mapGetters } from 'vuex'
 
 export default {
   data() {
     return {
-      login: '',
+      email: '',
       password: ''
     }
   },
+  layout: 'login',
+  computed: {
+    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
+  },
+  watch: {
+    process() {
+      console.log('TCL: process.client', process.client)
+    }
+  },
+  created: function() {
+    console.log('TCL: process.client', process.client)
+  },
   methods: {
     async verifyLogin() {
-      // const user = {
-      //   email: this.email,
-      //   password: this.password
-      // }
-      console.log('TCL: verifyLogin -> localApiUrl', process.env.localApiUrl)
+      const user = {
+        email: this.email,
+        password: this.password
+      }
       try {
-        const res = await axios.get(process.env.localApiUrl + '/shops/p/1')
-        console.log('TCL: verifyLogin -> res', res)
+        await this.$store.dispatch('auth/login', user)
+        if (this.isLoggedIn) {
+          this.$router.push({
+            path: '/dashboard'
+          })
+        }
       } catch (error) {
         console.log('TCL: verifyLogin -> error', error)
       }
-
-      // this.$router.push({
-      //   // path: '/auth/login'
-      //   path: '/dashboard'
-      // })
     }
-  },
-  layout: 'login'
+  }
 }
 </script>

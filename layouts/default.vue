@@ -53,6 +53,11 @@
       <v-content>
         <v-container fluid fill-height>
           <v-layout justify-center align-center>
+            <v-card :color="isLoggedIn ? 'success' : 'warning'" class="mb-4">
+              <v-card-text>
+                {{ isLoggedIn ? 'User is logged' : 'User has to login' }}
+              </v-card-text>
+            </v-card>
             <nuxt />
           </v-layout>
         </v-container>
@@ -62,6 +67,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
@@ -76,6 +82,24 @@ export default {
         { icon: 'phonelink', text: 'App downloads' },
         { icon: 'keyboard', text: 'Go to the old version' }
       ]
+    }
+  },
+  computed: {
+    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
+  },
+  watch: {
+    process() {
+      console.log('TCL: process.client', process.client)
+    }
+  },
+  created: function() {
+    console.log('TCL: process.client', process.client)
+  },
+  methods: {
+    logout: function() {
+      this.$store.dispatch('AUTH_LOGOUT').then(() => {
+        this.$router.push('/')
+      })
     }
   }
 }
