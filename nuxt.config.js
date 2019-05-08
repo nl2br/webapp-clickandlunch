@@ -2,7 +2,6 @@ import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin'
 import pkg from './package'
 
 if (process.env.NODE_ENV !== 'production') require('dotenv').config()
-console.log('TCL: process.env.NODE_ENV', process.env.NODE_ENV)
 
 export default {
   mode: 'universal',
@@ -38,23 +37,44 @@ export default {
   css: ['~/assets/style/app.styl'],
 
   router: {
-    middleware: 'i18n'
+    middleware: ['i18n', 'auth']
   },
   generate: {
-    routes: ['/', '/signin', '/fr', '/fr/signin']
+    routes: ['/', '/login', '/fr', '/fr/login']
   },
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['@/plugins/vuetify', '~/plugins/i18n.js'],
+  plugins: ['@/plugins/vuetify', '~/plugins/i18n.js', '~/api/init.js'],
 
   /*
    ** Nuxt.js modules
    */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios'
+    // '@nuxtjs/axios'
+    // '@nuxtjs/auth'
   ],
+  // auth: {
+  //   redirect: {
+  //     login: '/',
+  //     logout: '/',
+  //     callback: '/',
+  //     home: '/dashboard'
+  //   },
+  //   strategies: {
+  //     local: {
+  //       endpoints: {
+  //         login: { url: '/auth/login', method: 'post', propertyName: 'token' },
+  //         logout: false,
+  //         user: { url: '/auth/me', method: 'get', propertyName: 'data' }
+  //       },
+  //       // tokenRequired: true,
+  //       tokenType: 'x-auth-token'
+  //     }
+  //   },
+  //   cookie: false
+  // },
   /*
    ** Axios module configuration
    */
@@ -89,6 +109,7 @@ export default {
     }
   },
   env: {
-    localApiUrl: process.env.LOCAL_API_URL
+    localApiUrl: process.env.LOCAL_API_URL,
+    apiUrl: process.env.API_URL
   }
 }

@@ -47,6 +47,9 @@
         <v-btn icon>
           <v-icon>notifications</v-icon>
         </v-btn>
+        <v-btn icon @click="logout">
+          <v-icon>power_settings_new</v-icon>
+        </v-btn>
       </v-toolbar>
 
       <!-- CONTENT -->
@@ -87,18 +90,11 @@ export default {
   computed: {
     ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
   },
-  watch: {
-    process() {
-      console.log('TCL: process.client', process.client)
-    }
-  },
-  created: function() {
-    console.log('TCL: process.client', process.client)
-  },
   methods: {
-    logout: function() {
-      this.$store.dispatch('AUTH_LOGOUT').then(() => {
-        this.$router.push('/')
+    logout() {
+      this.$store.dispatch('auth/logout').then(() => {
+        console.log('dispatch ok')
+        this.$router.push('/login')
       })
     }
   }

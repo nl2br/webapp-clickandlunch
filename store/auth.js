@@ -1,60 +1,66 @@
-import axios from 'axios'
+import api from '~/api'
+import Cookies from 'js-cookie'
+import { setAuthToken, resetAuthToken } from '~/utils/auth'
 
 export const state = () => ({
-  // token: localStorage.getItem('token') || null,
   token: null,
+  user: null,
   status: null
 })
 
+// mutation handler functions must be synchronous
 export const mutations = {
-  AUTH_REQUEST: state => {
-    state.status = 'loading'
-  },
   AUTH_SUCCESS: (state, token) => {
     state.status = 'success'
     state.token = token
   },
-  AUTH_ERROR: state => {
-    state.status = 'error'
+  AUTH_ERROR: (state, error) => {
+    state.status = 'error : ' + error
+    state.token = null
   },
-  AUTH_LOGOUT: (state, token) => {
+  AUTH_LOGOUT: state => {
     state.status = 'logged out'
     state.token = null
+    state.user = null
+  },
+  SET_USER: (state, data) => {
+    state.user = data
   }
 }
 
 export const actions = {
-  async login({ commit, dispatch }, payload) {
-    commit('AUTH_REQUEST')
-    const user = {
-      email: payload.email,
-      password: payload.password
-    }
+  async fetch({ commit }) {
+    console.log('fetch')
     try {
-      const res = await axios.post(
-        process.env.localApiUrl + '/auth/login',
-        user
-      )
-      const token = res.data.token
-      if (process.client) {
-        localStorage.setItem('token', token) // store the token in localstorage
-      }
-      axios.defaults.headers.common.Authorization = token
-      commit('AUTH_SUCCESS', token)
+      const res = await api.auth.me()
+      commit('AUTH_SUCCESS', res.data.result)
+      return res
     } catch (err) {
-      commit('AUTH_ERROR', err)
-      if (process.client) {
-        localStorage.removeItem('token')
-      }
-      console.log('TCL: verifyLogin -> error', err)
+      commit('AUTH_LOGOUT')
+      return err
     }
   },
-  logout({ commit, dispatch }) {
-    commit('AUTH_LOGOUT')
-    if (process.client) {
-      localStorage.removeItem('token') // clear your user's token from localstorage
+  async login({ commit, dispatch }, user) {
+    try {
+      const res = await api.auth.login(user)
+      console.log('TCL: login -> res', res)
+      setAuthToken(res.data.token)
+      Cookies.set('x-access-token', res.data.token, { expires: 7 })
+      commit('AUTH_SUCCESS', res.data.token)
+      commit('SET_USER', res.data.user)
+      return res.data.user
+    } catch (err) {
+      console.log('TCL: login -> err', err)
+      Cookies.set('token', null)
+      commit('AUTH_ERROR', err)
+      return err
     }
-    delete axios.defaults.headers.common.Authorization // remove the axios default header
+  },
+  logout({ commit }) {
+    resetAuthToken()
+    Cookies.remove('x-access-token')
+    commit('AUTH_LOGOUT')
+    return Promise.resolve()
   }
 }
 
