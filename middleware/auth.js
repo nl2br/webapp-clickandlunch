@@ -4,7 +4,9 @@
  */
 export default function({ store, redirect, route }) {
   const token = !!store.state.auth.token
+  console.log('TCL: middleware', token)
   if (!token) {
-    if (route.path !== '/login') return redirect('/login')
+    if (route.path !== '/login' && route.path !== '/register')
+      return redirect('/login')
   }
 }

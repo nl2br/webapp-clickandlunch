@@ -1,6 +1,6 @@
 import api from '~/api'
 import Cookies from 'js-cookie'
-import { setAuthToken, resetAuthToken } from '~/utils/auth'
+import { setAuthToken, resetAuthToken, getAuthToken } from '~/utils/auth'
 
 export const state = () => ({
   token: null,
@@ -33,7 +33,9 @@ export const actions = {
     console.log('fetch')
     try {
       const res = await api.auth.me()
-      commit('AUTH_SUCCESS', res.data.result)
+      commit('AUTH_SUCCESS', getAuthToken())
+      console.log('TCL: fetch -> getAuthToken()', getAuthToken())
+      commit('SET_USER', res.data.result)
       return res
     } catch (err) {
       commit('AUTH_LOGOUT')
@@ -43,7 +45,7 @@ export const actions = {
   async login({ commit, dispatch }, user) {
     try {
       const res = await api.auth.login(user)
-      console.log('TCL: login -> res', res)
+      console.log('TCL: login -> res', res.data)
       setAuthToken(res.data.token)
       Cookies.set('x-access-token', res.data.token, { expires: 7 })
       commit('AUTH_SUCCESS', res.data.token)

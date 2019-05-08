@@ -1,5 +1,5 @@
-// import cookieparser from 'cookieparser'
-// import { setAuthToken, resetAuthToken } from '~/utils/auth'
+import cookieparser from 'cookieparser'
+import { setAuthToken, resetAuthToken } from '~/utils/auth'
 
 export const state = () => ({
   locales: ['en', 'fr'],
@@ -15,15 +15,28 @@ export const mutations = {
 }
 
 export const actions = {
-  // nuxtServerInit({ commit, dispatch }, { req }) {
-  //   const cookie = cookieparser.parse(req.headers.cookie || '')
-  //   if (cookie.hasOwnProperty('x-access-token')) {
-  //     setAuthToken(cookie['x-access-token'])
-  //     dispatch('auth/fetch')
-  //   } else {
-  //     resetAuthToken()
-  //     dispatch('auth/logout')
-  //   }
-  // }
+  nuxtServerInit({ commit, dispatch }, { req }) {
+    return new Promise((resolve, reject) => {
+      console.log('TCL: nuxtServerInit -> nuxtServerInit')
+      const cookie = cookieparser.parse(req.headers.cookie || '')
+      if (cookie.hasOwnProperty('x-access-token')) {
+        setAuthToken(cookie['x-access-token'])
+        dispatch('auth/fetch')
+          .then(() => {
+            resolve(true)
+          })
+          .catch(err => {
+            console.log('Provided token is invalid:', err)
+            resetAuthToken()
+            dispatch('auth/logout')
+            resolve(false)
+          })
+      } else {
+        resetAuthToken()
+        dispatch('auth/logout')
+        resolve(false)
+      }
+    })
+  }
 }
 export const getters = {}

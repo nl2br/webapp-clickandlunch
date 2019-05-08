@@ -6,7 +6,14 @@
     "french": "French version"
   },
   "login":{
-    "title": "Sign in"
+    "title": "Sign in",
+    "noaccount": "I don't have an account !",
+    "noaccountlink": "Create my account"
+  },
+  "register":{
+    "title": "Create an account",
+    "account": "I already have an account !",
+    "accountlink": "Connect to my account"
   },
   "home": {
     "title": "Welcome",

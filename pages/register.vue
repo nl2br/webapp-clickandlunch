@@ -7,7 +7,7 @@
     </v-card>
     <v-card class="elevation-12">
       <v-toolbar dark color="primary">
-        <v-toolbar-title>{{ $t('login.title') }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t('register.title') }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-flex class="languages">
           <div
@@ -46,8 +46,8 @@
       </v-card-actions>
     </v-card>
     <v-flex class="mt-5 text-xs-center">
-      <strong>{{ $t('login.noaccount') }}</strong>
-      <nuxt-link to="/register">{{ $t('login.noaccountlink') }}</nuxt-link>
+      <strong>{{ $t('register.account') }}</strong>
+      <nuxt-link to="/login">{{ $t('register.accountlink') }}</nuxt-link>
     </v-flex>
   </v-flex>
 </template>
@@ -58,8 +58,8 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      email: 'natleb7@gmail.com',
-      password: 'password'
+      email: '',
+      password: ''
     }
   },
   layout: 'login',
@@ -72,14 +72,7 @@ export default {
       return this.$store.state.locale
     }
   },
-  watch: {
-    process() {
-      console.log('TCL: process.client', process.client)
-    }
-  },
-  created: function() {
-    console.log('TCL: process.client', process.client)
-  },
+  watch: {},
   methods: {
     async verifyLogin() {
       const user = {
@@ -104,31 +97,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.language-switcher {
-  display: flex;
-  padding: 1rem;
-}
-.languages {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.language {
-  padding-left: 0.25rem;
-  cursor: pointer;
-}
-.language.active {
-  text-decoration: underline;
-}
-
-.language:hover span {
-  text-decoration: underline;
-}
-
-.language:not(:last-child):after {
-  content: '|';
-  padding-left: 0.25rem;
-}
-</style>
