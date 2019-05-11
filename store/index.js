@@ -19,8 +19,8 @@ export const actions = {
     return new Promise((resolve, reject) => {
       console.log('TCL: nuxtServerInit -> nuxtServerInit')
       const cookie = cookieparser.parse(req.headers.cookie || '')
-      if (cookie.hasOwnProperty('x-access-token')) {
-        setAuthToken(cookie['x-access-token'])
+      if (cookie.hasOwnProperty('x-auth-token')) {
+        setAuthToken(cookie['x-auth-token'])
         dispatch('auth/fetch')
           .then(() => {
             resolve(true)

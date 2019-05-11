@@ -7,7 +7,7 @@ import { setAuthToken, resetAuthToken } from '~/utils/auth'
 axios.defaults.baseURL = baseURL
 
 // create the cookie with the token
-const token = cookies.get('x-access-token')
+const token = cookies.get('x-auth-token')
 
 // add the token to the header x-acces-token with axios
 token ? setAuthToken(token) : resetAuthToken()

@@ -42,12 +42,12 @@ export const actions = {
       return err
     }
   },
-  async login({ commit, dispatch }, user) {
+  async login({ commit }, user) {
     try {
       const res = await api.auth.login(user)
       console.log('TCL: login -> res', res.data)
       setAuthToken(res.data.token)
-      Cookies.set('x-access-token', res.data.token, { expires: 7 })
+      Cookies.set('x-auth-token', res.data.token, { expires: 7 })
       commit('AUTH_SUCCESS', res.data.token)
       commit('SET_USER', res.data.user)
       return res.data.user
@@ -60,9 +60,17 @@ export const actions = {
       }
     }
   },
+  loginAfterCreate({ commit }, user) {
+    console.log('TCL: loginAfterCreate -> user', user)
+    const token = getAuthToken()
+    Cookies.set('x-auth-token', token, { expires: 7 })
+    commit('AUTH_SUCCESS', token)
+    commit('SET_USER', user)
+    return Promise.resolve()
+  },
   logout({ commit }) {
     resetAuthToken()
-    Cookies.remove('x-access-token')
+    Cookies.remove('x-auth-token')
     commit('AUTH_LOGOUT')
     return Promise.resolve()
   }
