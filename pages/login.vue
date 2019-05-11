@@ -9,17 +9,7 @@
       <v-toolbar dark color="primary">
         <v-toolbar-title>{{ $t('login.title') }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-flex class="languages">
-          <div
-            v-for="el in locales"
-            :key="el"
-            class="language"
-            :class="{ active: el === locale }"
-            @click="switchLanguage(el)"
-          >
-            <span>{{ el }}</span>
-          </div>
-        </v-flex>
+        <LanguageSwitcher />
       </v-toolbar>
       <v-card-text>
         <v-form>
@@ -29,6 +19,9 @@
             name="email"
             label="Email"
             type="text"
+            :rules="loginRules"
+            required
+            @change="checkEmpty($event, 'login')"
           ></v-text-field>
           <v-text-field
             id="password"
@@ -37,6 +30,9 @@
             name="password"
             label="Password"
             type="password"
+            :rules="emailRules"
+            required
+            @change="checkEmpty($event, 'email')"
           ></v-text-field>
         </v-form>
       </v-card-text>
@@ -54,32 +50,31 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { testMixin } from '../mixins/testMixin'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 export default {
+  components: {
+    LanguageSwitcher
+  },
+  mixins: [testMixin],
   data() {
     return {
       email: 'natleb7@gmail.com',
-      password: 'password'
+      password: 'password',
+      rulesLogin: [v => !!v || 'Login is required'],
+      rulesEmail: [
+        v => !!v || 'Email is required',
+        v => /.+@.+/.test(v) || 'E-mail must be valid'
+      ]
     }
   },
   layout: 'login',
   computed: {
-    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' }),
-    locales() {
-      return this.$store.state.locales
-    },
-    locale() {
-      return this.$store.state.locale
-    }
+    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
   },
-  watch: {
-    process() {
-      console.log('TCL: process.client', process.client)
-    }
-  },
-  created: function() {
-    console.log('TCL: process.client', process.client)
-  },
+  watch: {},
+  created: function() {},
   methods: {
     async verifyLogin() {
       const user = {
@@ -87,7 +82,8 @@ export default {
         password: this.password
       }
       try {
-        await this.$store.dispatch('auth/login', user)
+        const res = await this.$store.dispatch('auth/login', user)
+        console.log('TCL: verifyLogin -> res', res)
         if (this.isLoggedIn) {
           this.$router.push({
             path: '/'
@@ -97,38 +93,13 @@ export default {
         console.log('TCL: verifyLogin -> error', error)
       }
     },
-    switchLanguage(localeCode) {
-      document.cookie = `locale=${localeCode}`
-      location.reload()
+    checkEmpty(value, field) {
+      if (!value.trim()) {
+        this.user[field] = this.currentGator[field]
+      }
     }
   }
 }
 </script>
 
-<style>
-.language-switcher {
-  display: flex;
-  padding: 1rem;
-}
-.languages {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.language {
-  padding-left: 0.25rem;
-  cursor: pointer;
-}
-.language.active {
-  text-decoration: underline;
-}
-
-.language:hover span {
-  text-decoration: underline;
-}
-
-.language:not(:last-child):after {
-  content: '|';
-  padding-left: 0.25rem;
-}
-</style>
+<style></style>

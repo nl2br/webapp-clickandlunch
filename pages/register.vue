@@ -9,17 +9,7 @@
       <v-toolbar dark color="primary">
         <v-toolbar-title>{{ $t('register.title') }}</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-flex class="languages">
-          <div
-            v-for="el in locales"
-            :key="el"
-            class="language"
-            :class="{ active: el === locale }"
-            @click="switchLanguage(el)"
-          >
-            <span>{{ el }}</span>
-          </div>
-        </v-flex>
+        <LanguageSwitcher />
       </v-toolbar>
       <v-card-text>
         <v-form>
@@ -54,8 +44,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 export default {
+  components: {
+    LanguageSwitcher
+  },
   data() {
     return {
       email: '',
@@ -64,13 +58,7 @@ export default {
   },
   layout: 'login',
   computed: {
-    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' }),
-    locales() {
-      return this.$store.state.locales
-    },
-    locale() {
-      return this.$store.state.locale
-    }
+    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
   },
   watch: {},
   methods: {
@@ -89,10 +77,6 @@ export default {
       } catch (error) {
         console.log('TCL: verifyLogin -> error', error)
       }
-    },
-    switchLanguage(localeCode) {
-      document.cookie = `locale=${localeCode}`
-      location.reload()
     }
   }
 }

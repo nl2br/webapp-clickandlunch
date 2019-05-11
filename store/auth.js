@@ -51,11 +51,13 @@ export const actions = {
       commit('AUTH_SUCCESS', res.data.token)
       commit('SET_USER', res.data.user)
       return res.data.user
-    } catch (err) {
-      console.log('TCL: login -> err', err)
+    } catch (error) {
       Cookies.set('token', null)
-      commit('AUTH_ERROR', err)
-      return err
+      commit('AUTH_ERROR', error.response.data.message)
+      return {
+        status: error.response.status,
+        message: error.response.data.message
+      }
     }
   },
   logout({ commit }) {
