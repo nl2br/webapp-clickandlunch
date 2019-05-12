@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
 class FormErrors {
@@ -91,7 +92,9 @@ export default {
     }
   },
   layout: 'login',
-  computed: {},
+  computed: {
+    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
+  },
   watch: {},
   methods: {
     async formSubmit() {
@@ -107,19 +110,19 @@ export default {
           firstname: 'nathan',
           lastname: 'lebreton',
           phoneNumber: '0663457812',
-          email: 'a@pdaddffgfddzsdde.fr',
+          email: 'ddsaa@ddlssdddk.fr',
           password: 'password',
           role: 'VENDOR'
         })
         console.log('TCL: verifyLogin -> res', res)
-
-        if (this.isLoggedIn) {
-          this.$router.push({
-            path: '/'
-          })
-        }
       } catch (error) {
         console.log('TCL: verifyLogin -> error', error)
+      }
+      console.log('TCL: formSubmit -> this.isLoggedIn', this.isLoggedIn)
+      if (this.isLoggedIn) {
+        this.$router.push({
+          path: '/'
+        })
       }
       // this.errors.reset()
       // const { email, password } = this.$data

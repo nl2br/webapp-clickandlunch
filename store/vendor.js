@@ -17,7 +17,13 @@ export const actions = {
         message: error.response.data.message
       }
     }
-    dispatch('auth/loginAfterCreate', res.data, { root: true })
+    dispatch(
+      'auth/loginAfterCreate',
+      { user: res.data, token: res.headers['x-auth-token'] },
+      {
+        root: true
+      }
+    )
     return res.data
   }
 }

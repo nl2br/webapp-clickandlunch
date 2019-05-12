@@ -60,12 +60,11 @@ export const actions = {
       }
     }
   },
-  loginAfterCreate({ commit }, user) {
-    console.log('TCL: loginAfterCreate -> user', user)
-    const token = getAuthToken()
-    Cookies.set('x-auth-token', token, { expires: 7 })
-    commit('AUTH_SUCCESS', token)
-    commit('SET_USER', user)
+  loginAfterCreate({ commit }, data) {
+    console.log('TCL: loginAfterCreate -> user', data)
+    Cookies.set('x-auth-token', data.token, { expires: 7 })
+    commit('AUTH_SUCCESS', data.token)
+    commit('SET_USER', data.user)
     return Promise.resolve()
   },
   logout({ commit }) {

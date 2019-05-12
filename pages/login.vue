@@ -19,9 +19,7 @@
             name="email"
             label="Email"
             type="text"
-            :rules="loginRules"
             required
-            @change="checkEmpty($event, 'login')"
           ></v-text-field>
           <v-text-field
             id="password"
@@ -30,9 +28,7 @@
             name="password"
             label="Password"
             type="password"
-            :rules="emailRules"
             required
-            @change="checkEmpty($event, 'email')"
           ></v-text-field>
         </v-form>
       </v-card-text>
