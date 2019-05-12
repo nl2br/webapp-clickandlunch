@@ -10,7 +10,7 @@
         :mini-variant="$vuetify.breakpoint.smAndUp"
         app
       >
-        <v-list dense>
+        <v-list>
           <template v-for="item in items">
             <v-list-tile :key="item.text" router :to="item.link">
               <v-list-tile-action>
@@ -36,7 +36,7 @@
           <v-icon>forum</v-icon>
 
           <nuxt-link to="/" class="logo-link">
-            <span class="title">Click&Lunch</span>
+            <span class="title">ClickAndLunch</span>
           </nuxt-link>
         </v-toolbar-title>
 
@@ -51,8 +51,8 @@
 
       <!-- CONTENT -->
       <v-content>
-        <v-container fluid fill-height>
-          <v-layout justify-center align-center>
+        <v-container fluid>
+          <v-layout>
             <nuxt />
           </v-layout>
         </v-container>

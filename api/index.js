@@ -11,5 +11,8 @@ export default {
   },
   vendor: {
     create: data => axios.post('/vendors', data)
+  },
+  shop: {
+    create: data => axios.post('/shops', data)
   }
 }
