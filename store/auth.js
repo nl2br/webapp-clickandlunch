@@ -5,7 +5,8 @@ import { setAuthToken, resetAuthToken, getAuthToken } from '~/utils/auth'
 export const state = () => ({
   token: null,
   user: null,
-  status: null
+  status: null,
+  wizardStep: null
 })
 
 // mutation handler functions must be synchronous
@@ -25,6 +26,9 @@ export const mutations = {
   },
   SET_USER: (state, data) => {
     state.user = data
+  },
+  SET_WIZARD_STEP: (state, data) => {
+    state.wizardStep = data
   }
 }
 
@@ -65,6 +69,7 @@ export const actions = {
     Cookies.set('x-auth-token', data.token, { expires: 7 })
     commit('AUTH_SUCCESS', data.token)
     commit('SET_USER', data.user)
+    commit('SET_WIZARD_STEP', 1)
     return Promise.resolve()
   },
   logout({ commit }) {

@@ -31,11 +31,9 @@
             required
           ></v-text-field>
         </v-form>
-      </v-card-text>
-      <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" @click="verifyLogin">Login</v-btn>
-      </v-card-actions>
+        <v-btn color="info" block @click="verifyLogin">Login</v-btn>
+      </v-card-text>
     </v-card>
     <v-flex class="mt-5 text-xs-center">
       <strong>{{ $t('login.noaccount') }}</strong>
@@ -70,7 +68,13 @@ export default {
     ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
   },
   watch: {},
-  created: function() {},
+  created: function() {
+    if (this.isLoggedIn) {
+      this.$router.push({
+        path: '/'
+      })
+    }
+  },
   methods: {
     async verifyLogin() {
       const user = {

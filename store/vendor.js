@@ -17,12 +17,11 @@ export const actions = {
         message: error.response.data.message
       }
     }
+    const token = res.headers['x-auth-token']
     dispatch(
       'auth/loginAfterCreate',
-      { user: res.data, token: res.headers['x-auth-token'] },
-      {
-        root: true
-      }
+      { user: res.data, token: token },
+      { root: true }
     )
     return res.data
   }

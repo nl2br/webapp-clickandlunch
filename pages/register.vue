@@ -8,29 +8,74 @@
       </v-toolbar>
       <v-form id="form-register-user" @submit.prevent="formSubmit">
         <v-card-text>
+          <v-alert v-if="errors.length" :value="true" type="error">
+            <p v-for="(error, index) in errors" :key="index" class="my-0">
+              {{ error }}
+            </p>
+          </v-alert>
           <v-text-field
-            v-model="email"
+            ref="firstname"
+            v-model="formInput.firstname"
+            name="firstname"
+            label="Firstname"
+            :rules="[rules.required]"
+            type="text"
+            required
+          ></v-text-field>
+          <v-text-field
+            ref="lastname"
+            v-model="formInput.lastname"
+            name="lastname"
+            label="Lastname"
+            :rules="[rules.required]"
+            type="text"
+            required
+          ></v-text-field>
+          <v-text-field
+            ref="phoneNumber"
+            v-model="formInput.phoneNumber"
+            name="phoneNumber"
+            label="Phone number"
+            :rules="[rules.required]"
+            type="text"
+            required
+            counter="10"
+          ></v-text-field>
+          <v-text-field
+            ref="siret"
+            v-model="formInput.siret"
+            name="siret"
+            label="Siret"
+            :rules="[rules.required]"
+            type="text"
+            required
+            counter="14"
+          ></v-text-field>
+          <p class="mt-5 mb-0">Information for login :</p>
+          <v-text-field
+            ref="email"
+            v-model="formInput.email"
             name="email"
             label="Email"
+            :rules="[rules.required, rules.email]"
             type="text"
-            counter
             required
           ></v-text-field>
           <v-text-field
             id="password"
-            v-model="password"
+            ref="password"
+            v-model="formInput.password"
             name="password"
             label="Password"
+            :rules="[rules.required]"
             type="password"
             required
           ></v-text-field>
-        </v-card-text>
-        <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn type="submit" color="primary" form="form-register-user">
+          <v-btn type="submit" color="info" form="form-register-user" block>
             Create my account
           </v-btn>
-        </v-card-actions>
+        </v-card-text>
       </v-form>
     </v-card>
     <v-flex class="mt-5 text-xs-center">
@@ -44,40 +89,31 @@
 import { mapGetters } from 'vuex'
 import LanguageSwitcher from '../components/LanguageSwitcher.vue'
 
-class FormErrors {
-  constructor() {
-    this.errors = {}
-  }
-  has(field) {
-    return this.errors.hasOwnProperty(field)
-  }
-  any() {
-    return Object.keys(this.errors).length > 0
-  }
-  get(field) {
-    if (this.errors[field]) {
-      return this.errors[field]
-    }
-  }
-  record(errors) {
-    this.errors = errors
-  }
-  clear(field) {
-    delete this.errors[field]
-  }
-  reset() {
-    this.errors = {}
-  }
-}
-
-class FormRules {
-  email() {
-    return [
-      v => !!v || 'E-mail is required',
-      v => /.+@.+/.test(v) || 'E-mail must be valid'
-    ]
-  }
-}
+// class FormErrors {
+//   constructor() {
+//     this.errors = {}
+//   }
+//   has(field) {
+//     return this.errors.hasOwnProperty(field)
+//   }
+//   any() {
+//     return Object.keys(this.errors).length > 0
+//   }
+//   get(field) {
+//     if (this.errors[field]) {
+//       return this.errors[field]
+//     }
+//   }
+//   record(errors) {
+//     this.errors = errors
+//   }
+//   clear(field) {
+//     delete this.errors[field]
+//   }
+//   reset() {
+//     this.errors = {}
+//   }
+// }
 
 export default {
   components: {
@@ -85,10 +121,24 @@ export default {
   },
   data() {
     return {
-      email: '',
-      password: '',
-      errors: new FormErrors(),
-      rules: new FormRules()
+      formInput: {
+        firstname: '',
+        lastname: '',
+        phoneNumber: '',
+        siret: '',
+        email: '',
+        password: ''
+      },
+      formHasErrors: false,
+      errors: [],
+      // errors: new FormErrors(),
+      rules: {
+        required: value => !!value || 'Required.',
+        email: value => {
+          const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          return pattern.test(value) || 'Invalid e-mail.'
+        }
+      }
     }
   },
   layout: 'login',
@@ -96,39 +146,49 @@ export default {
     ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
   },
   watch: {},
+  created() {
+    if (this.isLoggedIn) {
+      this.$router.push({
+        path: '/'
+      })
+    }
+  },
   methods: {
     async formSubmit() {
-      // const { email, password } = this.$data
-      //       firstname: req.body.firstname,
-      // lastname: req.body.lastname,
-      // phoneNumber: req.body.phoneNumber,
-      // email: req.body.email,
-      // password: hashPassword,
-      // role: req.body.role
-      try {
-        const res = await this.$store.dispatch('vendor/create', {
-          firstname: 'nathan',
-          lastname: 'lebreton',
-          phoneNumber: '0663457812',
-          email: 'ddsaa@ddlssdddk.fr',
-          password: 'password',
-          role: 'VENDOR'
-        })
-        console.log('TCL: verifyLogin -> res', res)
-      } catch (error) {
-        console.log('TCL: verifyLogin -> error', error)
+      // find errors
+      this.formHasErrors = false
+      Object.keys(this.formInput).forEach(f => {
+        if (!this.formInput[f]) this.formHasErrors = true
+        this.$refs[f].validate(true)
+      })
+
+      // call api for creating the user
+      // if (!this.formHasErrors) {
+      const vendor = {
+        firstname: this.$data.formInput.firstname,
+        lastname: this.$data.formInput.lastname,
+        phoneNumber: this.$data.formInput.phoneNumber,
+        email: this.$data.formInput.email,
+        password: this.$data.formInput.password,
+        role: 'VENDOR'
       }
-      console.log('TCL: formSubmit -> this.isLoggedIn', this.isLoggedIn)
+      try {
+        const res = await this.$store.dispatch('vendor/create', vendor)
+        if (res.status !== 201) {
+          this.errors = res.message.split('\n')
+          this.formHasErrors = true
+        }
+      } catch (error) {
+        console.log(error)
+      }
+
+      // the dispatch create the user and logged the user
       if (this.isLoggedIn) {
         this.$router.push({
           path: '/'
         })
       }
-      // this.errors.reset()
-      // const { email, password } = this.$data
-      // if (!email) this.errors.push('Email is required')
-      // if (!password) this.errors.push('Email is required')
-      // console.log('TCL: formSubmit -> this.errors', this.errors)
+      // }
     }
   }
 }
