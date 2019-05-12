@@ -38,7 +38,6 @@ export const actions = {
     try {
       const res = await api.auth.me()
       commit('AUTH_SUCCESS', getAuthToken())
-      console.log('TCL: fetch -> getAuthToken()', getAuthToken())
       commit('SET_USER', res.data.result)
       return res
     } catch (err) {
@@ -49,8 +48,9 @@ export const actions = {
   async login({ commit }, user) {
     try {
       const res = await api.auth.login(user)
+      console.log('TCL: login -> res', res)
       setAuthToken(res.data.token)
-      Cookies.set('token', res.data.token, { expires: 7 })
+      Cookies.set('token', res.data.token, { expires: 1 })
       commit('AUTH_SUCCESS', res.data.token)
       commit('SET_USER', res.data.user)
       if (Cookies.get('wizardStep')) {
@@ -68,7 +68,7 @@ export const actions = {
   },
   loginAfterCreate({ commit }, data) {
     console.log('TCL: loginAfterCreate -> user', data)
-    Cookies.set('token', data.token, { expires: 7 })
+    Cookies.set('token', data.token, { expires: 1 })
     Cookies.set('wizardStep', 1, { expires: 7 })
     commit('AUTH_SUCCESS', data.token)
     commit('SET_USER', data.user)

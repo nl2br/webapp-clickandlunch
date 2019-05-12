@@ -5,14 +5,14 @@
       <v-navigation-drawer
         v-model="drawer"
         fixed
-        :floating="false"
-        :clipped="$vuetify.breakpoint.mdAndUp"
-        :mini-variant="true"
+        clipped
+        :permanent="$vuetify.breakpoint.smAndUp"
+        :mini-variant="$vuetify.breakpoint.smAndUp"
         app
       >
         <v-list dense>
           <template v-for="item in items">
-            <v-list-tile :key="item.text">
+            <v-list-tile :key="item.text" router :to="item.link">
               <v-list-tile-action>
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-tile-action>
@@ -27,20 +27,17 @@
       </v-navigation-drawer>
 
       <!-- TOP TOOLBAR -->
-      <v-toolbar
-        color="blue darken-3"
-        dark
-        app
-        :clipped-left="$vuetify.breakpoint.mdAndUp"
-      >
+      <v-toolbar color="blue darken-3" dark app clipped-left>
         <v-toolbar-side-icon
-          v-if="!$vuetify.breakpoint.mdAndUp"
+          v-if="!$vuetify.breakpoint.smAndUp"
           @click.native="drawer = !drawer"
         ></v-toolbar-side-icon>
         <v-toolbar-title class="mr-5 align-center">
           <v-icon>forum</v-icon>
 
-          <span class="title">Click&Lunch</span>
+          <nuxt-link to="/" class="logo-link">
+            <span class="title">Click&Lunch</span>
+          </nuxt-link>
         </v-toolbar-title>
 
         <v-spacer></v-spacer>
@@ -56,11 +53,6 @@
       <v-content>
         <v-container fluid fill-height>
           <v-layout justify-center align-center>
-            <v-card :color="isLoggedIn ? 'success' : 'warning'" class="mb-4">
-              <v-card-text>
-                {{ isLoggedIn ? 'User is logged' : 'User has to login' }}
-              </v-card-text>
-            </v-card>
             <nuxt />
           </v-layout>
         </v-container>
@@ -74,16 +66,17 @@ import { mapGetters } from 'vuex'
 export default {
   data() {
     return {
-      drawer: null,
+      drawer: true,
       items: [
-        { icon: 'contacts', text: 'Contacts' },
-        { icon: 'history', text: 'Frequently contacted' },
-        { icon: 'content_copy', text: 'Duplicates' },
-        { icon: 'settings', text: 'Settings' },
-        { icon: 'chat_bubble', text: 'Send feedback' },
-        { icon: 'help', text: 'Help' },
-        { icon: 'phonelink', text: 'App downloads' },
-        { icon: 'keyboard', text: 'Go to the old version' }
+        { icon: 'home', text: 'Home', link: '/' },
+        { icon: 'contacts', text: 'Shop', link: '/shop' }
+        // { icon: 'history', text: 'Frequently contacted' },
+        // { icon: 'content_copy', text: 'Duplicates' },
+        // { icon: 'settings', text: 'Settings' },
+        // { icon: 'chat_bubble', text: 'Send feedback' },
+        // { icon: 'help', text: 'Help' },
+        // { icon: 'phonelink', text: 'App downloads' },
+        // { icon: 'keyboard', text: 'Go to the old version' }
       ]
     }
   },
@@ -103,3 +96,9 @@ export default {
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+.logo-link
+  text-decoration none
+  color white
+</style>
