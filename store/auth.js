@@ -49,11 +49,13 @@ export const actions = {
   async login({ commit }, user) {
     try {
       const res = await api.auth.login(user)
-      console.log('TCL: login -> res', res.data)
       setAuthToken(res.data.token)
-      Cookies.set('x-auth-token', res.data.token, { expires: 7 })
+      Cookies.set('token', res.data.token, { expires: 7 })
       commit('AUTH_SUCCESS', res.data.token)
       commit('SET_USER', res.data.user)
+      if (Cookies.get('wizardStep')) {
+        commit('SET_WIZARD_STEP', Cookies.get('wizardStep'))
+      }
       return res.data.user
     } catch (error) {
       Cookies.set('token', null)
@@ -66,7 +68,8 @@ export const actions = {
   },
   loginAfterCreate({ commit }, data) {
     console.log('TCL: loginAfterCreate -> user', data)
-    Cookies.set('x-auth-token', data.token, { expires: 7 })
+    Cookies.set('token', data.token, { expires: 7 })
+    Cookies.set('wizardStep', 1, { expires: 7 })
     commit('AUTH_SUCCESS', data.token)
     commit('SET_USER', data.user)
     commit('SET_WIZARD_STEP', 1)
@@ -74,7 +77,7 @@ export const actions = {
   },
   logout({ commit }) {
     resetAuthToken()
-    Cookies.remove('x-auth-token')
+    Cookies.remove('token')
     commit('AUTH_LOGOUT')
     return Promise.resolve()
   }
@@ -82,5 +85,6 @@ export const actions = {
 
 export const getters = {
   isLoggedIn: state => !!state.token,
-  authStatus: state => state.status
+  authStatus: state => state.status,
+  wizardStep: state => state.wizardStep
 }

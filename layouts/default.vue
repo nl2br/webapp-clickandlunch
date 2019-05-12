@@ -88,7 +88,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({ isLoggedIn: 'auth/isLoggedIn' })
+    ...mapGetters({
+      isLoggedIn: 'auth/isLoggedIn',
+      wizardStep: 'auth/wizardStep'
+    })
   },
   methods: {
     logout() {
