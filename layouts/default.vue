@@ -82,8 +82,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      isLoggedIn: 'auth/isLoggedIn',
-      wizardStep: 'auth/wizardStep'
+      isLoggedIn: 'auth/isLoggedIn'
     })
   },
   methods: {

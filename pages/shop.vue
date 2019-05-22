@@ -132,6 +132,7 @@
 
 <script>
 import axios from 'axios'
+// import { rules } from '../utils/rules'
 
 export default {
   data() {
@@ -152,7 +153,9 @@ export default {
         email: value => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
           return pattern.test(value) || 'Invalid e-mail.'
-        }
+        },
+        siret: v => (v && v.length === 14) || 'Siret must be 14 numbers',
+        number: v => (Number(v) ? true : false || 'Number only')
       },
       isInitial: true,
       isSaving: false,
@@ -161,14 +164,19 @@ export default {
   },
   methods: {
     async formSubmit() {
-      console.log('TCL: formSubmit -> formSubmit')
       // find errors
       this.formHasErrors = false
       this.errors = []
+
       Object.keys(this.formInput).forEach(f => {
-        if (!this.formInput[f]) this.formHasErrors = true
+        if (!this.formInput[f]) {
+          this.formHasErrors = true
+          this.errors.push(`Error on ${f}`)
+        }
         this.$refs[f].validate(true)
       })
+
+      console.log('TCL: formSubmit -> this.formHasErrors', this.formHasErrors)
 
       // call api for creating the shop
       if (!this.formHasErrors) {
@@ -182,6 +190,7 @@ export default {
           phoneNumber: this.$data.formInput.phoneNumber,
           email: this.$data.formInput.email
         }
+        console.log('TCL: formSubmit -> shop', shop)
 
         // api call for retrieve lat and lon of the address
         let position
