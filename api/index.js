@@ -19,7 +19,7 @@ export default {
     create: data =>
       axios.post('/shops', data, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'content-type': `multipart/form-data; boundary=${data._boundary}`
         }
       }),
     get: data => axios.get('/shops/' + data)
