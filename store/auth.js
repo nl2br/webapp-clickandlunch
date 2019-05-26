@@ -20,6 +20,7 @@ export const mutations = {
     state.token = null
   },
   AUTH_LOGOUT: state => {
+    console.log('TCL: state', state)
     state.status = 'logged out'
     state.token = null
     state.user = null
@@ -33,29 +34,43 @@ export const mutations = {
 }
 
 export const actions = {
-  async fetch({ commit }) {
+  async fetch({ commit, dispatch }) {
     console.log('fetch')
     try {
       const res = await api.auth.me()
+      console.log('TCL: fetch -> res', res)
       commit('AUTH_SUCCESS', getAuthToken())
       commit('SET_USER', res.data.result)
+      // see if this user have a store
+      await dispatch('shop/findShop', { user: res.data.result }, { root: true })
       return res
     } catch (err) {
       commit('AUTH_LOGOUT')
       return err
     }
   },
-  async login({ commit }, user) {
+  /**
+   * Log the user if existing
+   * fill the store
+   * @param {Object} context
+   * @param {Object} data
+   */
+  async login({ commit, dispatch }, user) {
     try {
+      // send to server the login and password to see if it matche
+      // send an error if not
       const res = await api.auth.login(user)
-      console.log('TCL: login -> res', res)
+      // add token in x-auth-token head property
       setAuthToken(res.data.token)
+      // add token to the cookie
       Cookies.set('token', res.data.token, { expires: 1 })
+      // add token to the store
       commit('AUTH_SUCCESS', res.data.token)
+      // add user info to the store
       commit('SET_USER', res.data.user)
-      if (Cookies.get('wizardStep')) {
-        commit('SET_WIZARD_STEP', Cookies.get('wizardStep'))
-      }
+      // see if this user have a store
+      await dispatch('shop/findShop', { user: res.data.user }, { root: true })
+
       return res.data.user
     } catch (error) {
       Cookies.set('token', null)
@@ -66,6 +81,11 @@ export const actions = {
       }
     }
   },
+  /**
+   * Auto login after a registration
+   * @param {Object} context
+   * @param {Object} data
+   */
   loginAfterCreate({ commit }, data) {
     console.log('TCL: loginAfterCreate -> user', data)
     Cookies.set('token', data.token, { expires: 1 })
@@ -75,10 +95,16 @@ export const actions = {
     commit('SET_WIZARD_STEP', 1)
     return Promise.resolve()
   },
+  /**
+   * Restting the store and Cookies
+   * @param {Object} context
+   */
   logout({ commit }) {
     resetAuthToken()
     Cookies.remove('token')
     commit('AUTH_LOGOUT')
+    // reset shop store
+    commit('shop/SET_SHOP', null, { root: true })
     return Promise.resolve()
   }
 }
