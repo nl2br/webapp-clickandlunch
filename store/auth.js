@@ -90,6 +90,8 @@ export const actions = {
     console.log('TCL: loginAfterCreate -> user', data)
     Cookies.set('token', data.token, { expires: 1 })
     Cookies.set('wizardStep', 1, { expires: 7 })
+    // add token in x-auth-token head property
+    setAuthToken(data.token)
     commit('AUTH_SUCCESS', data.token)
     commit('SET_USER', data.user)
     commit('SET_WIZARD_STEP', 1)
