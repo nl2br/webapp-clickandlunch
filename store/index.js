@@ -16,9 +16,11 @@ export const mutations = {
 
 export const actions = {
   nuxtServerInit({ commit, dispatch }, { req }) {
+    console.log('TCL: nuxtServerInit -> nuxtServerInit')
+
     return new Promise((resolve, reject) => {
-      console.log('TCL: nuxtServerInit -> nuxtServerInit')
       const cookie = cookieparser.parse(req.headers.cookie || '')
+
       if (cookie.hasOwnProperty('token')) {
         setAuthToken(cookie.token)
         dispatch('auth/fetch')

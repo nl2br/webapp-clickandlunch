@@ -55,6 +55,7 @@ export default {
     // Doc: https://axios.nuxtjs.org/usage
     // '@nuxtjs/axios'
     // '@nuxtjs/auth'
+    '@nuxtjs/dotenv'
   ],
   // auth: {
   //   redirect: {
@@ -111,6 +112,7 @@ export default {
   },
   env: {
     localApiUrl: process.env.LOCAL_API_URL,
-    apiUrl: process.env.API_URL
+    apiUrl: process.env.API_URL,
+    nodeEnv: process.env.NODE_ENV
   }
 }

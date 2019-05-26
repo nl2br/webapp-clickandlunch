@@ -27,28 +27,29 @@
       </v-navigation-drawer>
 
       <!-- TOP TOOLBAR -->
-      <v-toolbar color="blue darken-3" dark app clipped-left>
-        <v-toolbar-side-icon
-          v-if="!$vuetify.breakpoint.smAndUp"
-          @click.native="drawer = !drawer"
-        ></v-toolbar-side-icon>
-        <v-toolbar-title class="mr-5 align-center">
-          <v-icon>forum</v-icon>
+      <no-ssr>
+        <v-toolbar color="blue darken-3" dark app clipped-left>
+          <v-toolbar-side-icon
+            v-if="!$vuetify.breakpoint.smAndUp"
+            @click.native="drawer = !drawer"
+          ></v-toolbar-side-icon>
+          <v-toolbar-title class="mr-5 align-center">
+            <v-icon>forum</v-icon>
 
-          <nuxt-link to="/" class="logo-link">
-            <span class="title">ClickAndLunch</span>
-          </nuxt-link>
-        </v-toolbar-title>
+            <nuxt-link to="/" class="logo-link">
+              <span class="title">ClickAndLunch</span>
+            </nuxt-link>
+          </v-toolbar-title>
 
-        <v-spacer></v-spacer>
-        <v-btn icon>
-          <v-icon>notifications</v-icon>
-        </v-btn>
-        <v-btn icon @click="logout">
-          <v-icon>power_settings_new</v-icon>
-        </v-btn>
-      </v-toolbar>
-
+          <v-spacer></v-spacer>
+          <v-btn icon>
+            <v-icon>notifications</v-icon>
+          </v-btn>
+          <v-btn icon @click="logout">
+            <v-icon>power_settings_new</v-icon>
+          </v-btn>
+        </v-toolbar>
+      </no-ssr>
       <!-- CONTENT -->
       <v-content>
         <v-container fluid>
@@ -82,8 +83,7 @@ export default {
   },
   computed: {
     ...mapGetters({
-      isLoggedIn: 'auth/isLoggedIn',
-      wizardStep: 'auth/wizardStep'
+      isLoggedIn: 'auth/isLoggedIn'
     })
   },
   methods: {

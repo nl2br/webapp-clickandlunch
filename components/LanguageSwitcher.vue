@@ -23,6 +23,7 @@ export default {
     }
   },
   methods: {
+    // TODO: don't reload the page
     switchLanguage(localeCode) {
       document.cookie = `locale=${localeCode}`
       location.reload()

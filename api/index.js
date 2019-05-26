@@ -10,9 +10,18 @@ export default {
     login: data => axios.post('/auth/login', data)
   },
   vendor: {
-    create: data => axios.post('/vendors', data)
+    create: data => axios.post('/vendors', data),
+    modify: data =>
+      axios.put('/vendors/' + data.vendorId, { shopId: data.shopId }),
+    get: data => axios.get('/vendors/' + data)
   },
   shop: {
-    create: data => axios.post('/shops', data)
+    create: data =>
+      axios.post('/shops', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }),
+    get: data => axios.get('/shops/' + data)
   }
 }

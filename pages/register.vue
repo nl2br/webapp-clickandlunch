@@ -46,7 +46,7 @@
             v-model="formInput.siret"
             name="siret"
             label="Siret"
-            :rules="[rules.required]"
+            :rules="[rules.required, rules.siret, rules.number]"
             type="text"
             required
             counter="14"
@@ -137,7 +137,9 @@ export default {
         email: value => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
           return pattern.test(value) || 'Invalid e-mail.'
-        }
+        },
+        siret: v => (v && v.length === 14) || 'Siret must be 14 numbers',
+        number: v => (Number(v) ? true : false || 'Number only')
       }
     }
   },
@@ -154,41 +156,51 @@ export default {
     }
   },
   methods: {
+    /**
+     * @method formSubmit
+     * Verify all inputs and send POST user request to the API
+     */
     async formSubmit() {
-      // find errors
+      // reset
       this.formHasErrors = false
+      this.errors = []
+
+      // find if input are empty and use the validate function of vuetify
       Object.keys(this.formInput).forEach(f => {
-        if (!this.formInput[f]) this.formHasErrors = true
+        if (!this.formInput[f]) {
+          this.formHasErrors = true
+          this.errors.push(`Error on ${f}`)
+        }
         this.$refs[f].validate(true)
       })
 
       // call api for creating the user
-      // if (!this.formHasErrors) {
-      const vendor = {
-        firstname: this.$data.formInput.firstname,
-        lastname: this.$data.formInput.lastname,
-        phoneNumber: this.$data.formInput.phoneNumber,
-        email: this.$data.formInput.email,
-        password: this.$data.formInput.password,
-        role: 'VENDOR'
-      }
-      try {
-        const res = await this.$store.dispatch('vendor/create', vendor)
-        if (res.status !== 201) {
-          this.errors = res.message.split('\n')
-          this.formHasErrors = true
+      if (!this.formHasErrors) {
+        const vendor = {
+          firstname: this.$data.formInput.firstname,
+          lastname: this.$data.formInput.lastname,
+          phoneNumber: this.$data.formInput.phoneNumber,
+          email: this.$data.formInput.email,
+          password: this.$data.formInput.password,
+          role: 'VENDOR'
         }
-      } catch (error) {
-        console.log(error)
-      }
+        try {
+          const res = await this.$store.dispatch('vendor/create', vendor)
+          if (res.status && res.status !== 201) {
+            this.errors = res.message.split('\n')
+            this.formHasErrors = true
+          }
+        } catch (error) {
+          console.log(error)
+        }
 
-      // the dispatch create the user and logged the user
-      if (this.isLoggedIn) {
-        this.$router.push({
-          path: '/'
-        })
+        // the dispatch create the user and logged the user
+        if (this.isLoggedIn) {
+          this.$router.push({
+            path: '/'
+          })
+        }
       }
-      // }
     }
   }
 }
