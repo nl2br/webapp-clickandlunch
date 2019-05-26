@@ -16,12 +16,7 @@ export default {
     get: data => axios.get('/vendors/' + data)
   },
   shop: {
-    create: data =>
-      axios.post('/shops', data, {
-        headers: {
-          'content-type': `multipart/form-data; boundary=${data._boundary}`
-        }
-      }),
+    create: data => axios.post('/shops', data),
     get: data => axios.get('/shops/' + data)
   }
 }
