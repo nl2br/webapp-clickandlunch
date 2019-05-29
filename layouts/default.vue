@@ -71,7 +71,12 @@ export default {
       items: [
         { icon: 'dashboard', text: 'Dashboard', link: '/' },
         { icon: 'store', text: 'Restaurant', link: '/shop' },
-        { icon: 'format_list_bulleted', text: 'Products', link: '/product' }
+        { icon: 'format_list_bulleted', text: 'Products', link: '/product' },
+        {
+          icon: 'timelapse',
+          text: 'Real time orders',
+          link: '/realtime'
+        }
         // { icon: 'history', text: 'Frequently contacted' },
         // { icon: 'content_copy', text: 'Duplicates' },
         // { icon: 'settings', text: 'Settings' },
