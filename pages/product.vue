@@ -119,7 +119,7 @@
                       v-model="formAddProduct.price"
                       name="price"
                       label="Price"
-                      :rules="[rules.required, rules.number]"
+                      :rules="[rules.required, rules.price]"
                       type="text"
                       required
                     ></v-text-field>
@@ -232,7 +232,11 @@ export default {
       rules: {
         required: value => !!value || 'Required.',
         number: v =>
-          Number(v) ? true : false || 'Number only, or use . instead of ,'
+          Number(v) ? true : false || 'Number only, or use . instead of ,',
+        price: v =>
+          /^[0-9]+([.,][0-9]{2})?$/.test(v)
+            ? true
+            : false || 'Number only like this 9.90'
       },
       photo: '',
       formAddProduct: {
@@ -312,14 +316,14 @@ export default {
         console.log('TCL: formSubmit -> f', f)
         console.log(
           'TCL: formSubmit -> this.formAddProduct[f]',
-          this.formAddProduct[f]
+          !this.formAddProduct[f]
         )
         if (!this.formAddProduct[f]) {
           this.formHasErrors = true
           this.loading = false
           this.errors.push(`Error on ${f}`)
         }
-        this.$refs[f].validate()
+        this.$refs[f].validate(true)
       })
       console.log(
         'TCL: formSubmit -> this.$data.formAddProduct',
