@@ -1,6 +1,9 @@
 {
   "name": "frontend",
   "version": "1.0.0",
+  "engines": {
+    "node": "8.11.3"
+  },
   "description": "My praiseworthy Nuxt.js project",
   "author": "nathan",
   "private": true,
