@@ -16,7 +16,33 @@ export default {
     get: data => axios.get('/vendors/' + data)
   },
   shop: {
+<<<<<<< HEAD
     create: data => axios.post('/shops', data),
     get: data => axios.get('/shops/' + data)
+=======
+    create: data =>
+      axios.post('/shops', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }),
+    get: data => axios.get(`/shops/${data}`)
+  },
+  product: {
+    create: data =>
+      axios.post(`/products/shops/${data.shopId}`, data.product, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }),
+    createMenu: data =>
+      axios.post(`/products/menus/shops/${data.shopId}`, data.product, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }),
+    get: data => axios.get(`/product/${data}`),
+    getProductList: data => axios.get(`/shops/${data}/products`)
+>>>>>>> dev
   }
 }

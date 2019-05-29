@@ -28,7 +28,7 @@
 
       <!-- TOP TOOLBAR -->
       <no-ssr>
-        <v-toolbar color="blue darken-3" dark app clipped-left>
+        <v-toolbar color="white" light app clipped-left>
           <v-toolbar-side-icon
             v-if="!$vuetify.breakpoint.smAndUp"
             @click.native="drawer = !drawer"
@@ -42,9 +42,9 @@
           </v-toolbar-title>
 
           <v-spacer></v-spacer>
-          <v-btn icon>
+          <!-- <v-btn icon>
             <v-icon>notifications</v-icon>
-          </v-btn>
+          </v-btn> -->
           <v-btn icon @click="logout">
             <v-icon>power_settings_new</v-icon>
           </v-btn>
@@ -69,8 +69,9 @@ export default {
     return {
       drawer: true,
       items: [
-        { icon: 'home', text: 'Home', link: '/' },
-        { icon: 'contacts', text: 'Shop', link: '/shop' }
+        { icon: 'dashboard', text: 'Dashboard', link: '/' },
+        { icon: 'store', text: 'Restaurant', link: '/shop' },
+        { icon: 'format_list_bulleted', text: 'Products', link: '/product' }
         // { icon: 'history', text: 'Frequently contacted' },
         // { icon: 'content_copy', text: 'Duplicates' },
         // { icon: 'settings', text: 'Settings' },
@@ -100,5 +101,5 @@ export default {
 <style lang="stylus" scoped>
 .logo-link
   text-decoration none
-  color white
+  color black
 </style>
