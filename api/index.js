@@ -16,10 +16,6 @@ export default {
     get: data => axios.get('/vendors/' + data)
   },
   shop: {
-<<<<<<< HEAD
-    create: data => axios.post('/shops', data),
-    get: data => axios.get('/shops/' + data)
-=======
     create: data =>
       axios.post('/shops', data, {
         headers: {
@@ -43,6 +39,5 @@ export default {
       }),
     get: data => axios.get(`/product/${data}`),
     getProductList: data => axios.get(`/shops/${data}/products`)
->>>>>>> dev
   }
 }
