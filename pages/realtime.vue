@@ -118,6 +118,10 @@
 
 <script>
 import axios from 'axios'
+import io from 'socket.io-client'
+import { baseURL } from '~/config'
+let socket = null
+
 export default {
   data() {
     return {
@@ -149,7 +153,17 @@ export default {
   },
   mounted: async function() {
     await this.getProductsList()
+    socket = io(baseURL + '/clickandlunch', { path: '/calsocketio' })
+    socket.emit('test', 'grgrgrg')
+    socket.on('message', message => {
+      console.log('Le serveur a un message pour vous : ', message)
+    })
+    // catch socketio error
+    socket.on('error', function(err) {
+      console.log('TCL: err', err)
+    })
   },
+  created: function() {},
   methods: {
     /**
      * Search the list of products in store
