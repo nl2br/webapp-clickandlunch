@@ -12,7 +12,7 @@ export const mutations = {
   SET_ORDERS: (state, data) => {
     // TODO: récupérer la liste des orders, puis filtrer sur la date
   },
-  UPDATE_ORDER: (state, data) => {
+  UPDATE_ORDER_STATUS: (state, data) => {
     // TODO: modifer l'état d'une commande
   }
 }
@@ -52,9 +52,12 @@ export const actions = {
     commit('SET_ORDERS', res.data)
     return res.data
   },
+
   addOrder({ commit }, data) {
     commit('ADD_ORDER', data)
   }
 }
 
-export const getters = {}
+export const getters = {
+  getOrders: state => state.orders
+}

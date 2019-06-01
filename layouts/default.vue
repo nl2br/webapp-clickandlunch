@@ -28,7 +28,7 @@
 
       <!-- TOP TOOLBAR -->
       <no-ssr>
-        <v-toolbar color="white" light app clipped-left>
+        <v-toolbar color="white" light app clipped-left height="60">
           <v-toolbar-side-icon
             v-if="!$vuetify.breakpoint.smAndUp"
             @click.native="drawer = !drawer"
