@@ -299,6 +299,13 @@ export default {
           this.$store.state.shop.shop.id
         )
       }
+      if (this.productsList.status) {
+        this.productsList = []
+      }
+      console.log(
+        'TCL: getProductsList -> this.productsList',
+        this.productsList
+      )
     },
     // TODO: if no product open the form by default
     // TODO: if no product cant select menu in dropdown

@@ -12,14 +12,20 @@
                   en attentes
                 </p>
               </v-flex>
-              <v-flex xs12>
-                <v-card>
-                  <v-card-text>test</v-card-text>
-                </v-card>
-              </v-flex>
-              <v-flex xs12>
-                <v-card>
-                  <v-card-text>test</v-card-text>
+              <v-flex v-if="newOrder.length" xs12>
+                <v-card v-for="order in newOrder" :key="order.id">
+                  <v-card-text>
+                    <p>{{ order.orderNumber }}</p>
+                    <p>{{ order.recoveryTime }}</p>
+                    <ul>
+                      <li
+                        v-for="product in order.OrderDetails"
+                        :key="'p' + product.productId"
+                      >
+                        {{ product.productId }}
+                      </li>
+                    </ul>
+                  </v-card-text>
                 </v-card>
               </v-flex>
             </v-layout>
@@ -56,7 +62,7 @@
       </v-layout>
     </v-flex>
     <v-btn fab dark color="info" class="fly-button">
-      <v-icon dark @click="dialog = !dialog">add</v-icon>
+      <v-icon dark @click="dialog = !dialog">mobile_screen_share</v-icon>
     </v-btn>
     <!-- v-dialog -->
     <v-dialog v-model="dialog" scrollable max-width="300px">
@@ -125,6 +131,7 @@ let socket = null
 export default {
   data() {
     return {
+      newOrder: [],
       dialog: false,
       fakeProductsList: [],
       fakeOrderProducts: [],
@@ -151,20 +158,38 @@ export default {
         .padStart(2, '0')}`
     }
   },
-  mounted: async function() {
-    await this.getProductsList()
+  /**
+   * Create the connection with the server througth socketio
+   */
+  beforeMount() {
+    // connect to the socket
     socket = io(baseURL + '/clickandlunch', { path: '/calsocketio' })
-    socket.emit('test', 'grgrgrg')
+    // create the relation between the shop ID and the socket ID
+    socket.emit('register', this.$store.state.shop.shop.id)
+    // when server send a message, catch it
     socket.on('message', message => {
       console.log('Le serveur a un message pour vous : ', message)
     })
+
+    // when the server send an order, catch it
+    socket.on('order', order => {
+      // this.$store.dispatch('order/addOrder', order)
+      this.newOrder.push(order)
+    })
+
     // catch socketio error
-    socket.on('error', function(err) {
+    socket.on('socket error', function(err) {
       console.log('TCL: err', err)
     })
   },
-  created: function() {},
+  mounted: async function() {
+    await this.getProductsList()
+    // this.getOrdersList()
+  },
   methods: {
+    getOrdersList() {
+      this.newOrder = this.$store.state.order.orders
+    },
     /**
      * Search the list of products in store
      * if not in store send a request to the API
