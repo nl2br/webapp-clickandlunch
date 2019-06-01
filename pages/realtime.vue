@@ -12,14 +12,52 @@
                   en attentes
                 </p>
               </v-flex>
-              <v-flex xs12>
-                <v-card>
-                  <v-card-text>test</v-card-text>
-                </v-card>
-              </v-flex>
-              <v-flex xs12>
-                <v-card>
-                  <v-card-text>test</v-card-text>
+              <v-flex v-if="newOrder.length" xs12 class="restrict">
+                <v-card
+                  v-for="order in sortable(newOrder)"
+                  :key="order.id"
+                  class="mb-2"
+                  :class="
+                    `${progressBarColor(
+                      updateProgressBar(order.date, order.recoveryTime)
+                    )} lighten-5`
+                  "
+                >
+                  <v-card-text>
+                    <p class="mb-1">{{ order.orderNumber }}</p>
+                    <v-divider></v-divider>
+                    <p class="mb-0 mt-1">
+                      Recovery time : {{ order.recoveryTime }}
+                    </p>
+                    <p class="mb-1 mt-0">
+                      Time left: {{ timeLeft(order.recoveryTime, order.id) }}
+                    </p>
+                    <v-progress-linear
+                      class="mt-1 mb-2"
+                      :color="
+                        progressBarColor(
+                          updateProgressBar(order.date, order.recoveryTime)
+                        )
+                      "
+                      height="15"
+                      :value="
+                        `${updateProgressBar(order.date, order.recoveryTime)}`
+                      "
+                    ></v-progress-linear>
+                    <v-divider></v-divider>
+                    <ul class="mt-2">
+                      <li
+                        v-for="product in order.OrderDetails"
+                        :key="
+                          Math.floor(Math.random() * (1000 - 1) + 1) +
+                            '-' +
+                            product.id
+                        "
+                      >
+                        {{ product.quantity }} x {{ product.Product.name }}
+                      </li>
+                    </ul>
+                  </v-card-text>
                 </v-card>
               </v-flex>
             </v-layout>
@@ -35,7 +73,7 @@
               </p>
             </v-flex>
             <v-layout row wrap>
-              <v-flex xs12></v-flex>
+              <v-flex xs12 class="restrict"></v-flex>
             </v-layout>
           </v-container>
         </v-flex>
@@ -49,14 +87,14 @@
               </p>
             </v-flex>
             <v-layout row wrap>
-              <v-flex xs12></v-flex>
+              <v-flex xs12 class="restrict"></v-flex>
             </v-layout>
           </v-container>
         </v-flex>
       </v-layout>
     </v-flex>
     <v-btn fab dark color="info" class="fly-button">
-      <v-icon dark @click="dialog = !dialog">add</v-icon>
+      <v-icon dark @click="dialog = !dialog">phone_iphone</v-icon>
     </v-btn>
     <!-- v-dialog -->
     <v-dialog v-model="dialog" scrollable max-width="300px">
@@ -118,10 +156,17 @@
 
 <script>
 import axios from 'axios'
+import { mapGetters } from 'vuex'
+import io from 'socket.io-client'
+import { baseURL } from '~/config'
+let socket = null
+
 export default {
   data() {
     return {
+      newOrder: [],
       dialog: false,
+      fakeRecoveryTime: null,
       fakeProductsList: [],
       fakeOrderProducts: [],
       snackbar: {
@@ -129,28 +174,128 @@ export default {
         message: null,
         timeout: 3000,
         color: ''
-      }
+      },
+      progress: 0,
+      ordersTimer: [],
+      now: new Date()
     }
   },
   computed: {
-    /**
-     * Create the fake order time to time now +2 minutes
-     */
-    fakeRecoveryTime: function() {
-      const d = new Date()
-      return `${d
-        .getHours()
-        .toString()
-        .padStart(2, '0')}:${new Date(d.getTime() + 2 * 60000)
-        .getMinutes()
-        .toString()
-        .padStart(2, '0')}`
-    }
+    ...mapGetters({
+      getProduct: 'product/getProduct',
+      getOrders: 'order/getOrders'
+    })
+  },
+  created() {
+    // "now" update every second
+    // the varible "now" is now reactive
+    // so if we use "now" in a method, the changes will be reactive
+    setInterval(() => (this.now = new Date()), 1000)
+    console.log('TCL: created -> created', this.now)
+  },
+  /**
+   * Create the connection with the server througth socketio
+   */
+  beforeMount() {
+    // connect to the socket
+    socket = io(baseURL + '/clickandlunch', { path: '/calsocketio' })
+    // create the relation between the shop ID and the socket ID
+    socket.emit('register', this.$store.state.shop.shop.id)
+    // when server send a message, catch it
+    socket.on('message', message => {
+      console.log('Le serveur a un message pour vous : ', message)
+    })
+
+    // when the server send an order, catch it
+    socket.on('order', data => {
+      this.$store.dispatch('order/addOrder', data)
+      // this.newOrder.push(data)
+      // launch success message
+      this.snackbar.message = 'New order receiving !'
+      this.snackbar.color = 'success'
+      this.snackbar.visible = true
+      this.loading = false
+      this.productCreated = true
+    })
+
+    // catch socketio error
+    socket.on('socket error', function(err) {
+      console.log('error socket', err)
+    })
   },
   mounted: async function() {
     await this.getProductsList()
+    this.getOrdersList()
   },
   methods: {
+    /**
+     * Sort the orders on their recovery time
+     * @params {Array}
+     * @return {Array} return sorted list of orders
+     */
+    sortable(arr) {
+      return arr.slice().sort((a, b) => {
+        return (
+          this.transformEndTimeToEndDate(a.recoveryTime).getTime() -
+          this.transformEndTimeToEndDate(b.recoveryTime).getTime()
+        )
+      })
+    },
+    timeLeft(end, orderId) {
+      let time
+      const endDate = this.transformEndTimeToEndDate(end)
+      const seconds = Math.floor(
+        (endDate.getTime() - this.now.getTime()) / 1000
+      )
+      console.log('TCL: timeLeft -> seconds', seconds)
+      if (seconds > 0) {
+        time = new Date(seconds * 1000).toISOString().substr(11, 8)
+      } else {
+        time = 'late'
+      }
+      return time
+    },
+    transformEndTimeToEndDate(end) {
+      const today = new Date()
+      return new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        end.substring(0, 2),
+        end.substring(3),
+        0
+      )
+    },
+    updateProgressBar(start, end) {
+      console.log('TCL: updateProgressBar -> end', end)
+      console.log('TCL: updateProgressBar -> start', start)
+      const endTime = this.transformEndTimeToEndDate(end)
+      console.log('TCL: updateProgressBar -> endTime', endTime)
+      console.log('TCL: updateProgressBar -> this.now', this.now)
+
+      const interval = Math.floor(
+        ((this.now.getTime() - Date.parse(start)) /
+          (endTime.getTime() - Date.parse(start))) *
+          100
+      )
+      return interval
+    },
+    progressBarColor(percent) {
+      let color
+      if (percent <= 50) {
+        color = 'light-blue'
+      }
+      if (percent > 50 && percent <= 75) {
+        color = 'amber'
+      }
+      if (percent > 75) {
+        color = 'deep-orange'
+      }
+      return color
+    },
+    getOrdersList() {
+      this.newOrder = this.getOrders
+    },
     /**
      * Search the list of products in store
      * if not in store send a request to the API
@@ -168,9 +313,8 @@ export default {
      * Send a fake order
      */
     async sendFakeOrder() {
-      let res
       try {
-        res = await axios.post(
+        await axios.post(
           `orders/shops/${this.$store.state.shop.shop.id}/customers/1`,
           {
             recoveryTime: this.fakeRecoveryTime,
@@ -189,14 +333,7 @@ export default {
         this.productCreated = true
         return
       }
-      console.log('TCL: fakeOrder -> res', res.data)
       this.dialog = !this.dialog
-      // show the successfull snack message
-      this.snackbar.message = 'Fake order is send !'
-      this.snackbar.color = 'success'
-      this.snackbar.visible = true
-      this.loading = false
-      this.productCreated = true
     }
   }
 }
@@ -207,10 +344,10 @@ export default {
   /* border: 1px solid grey; */
   padding: 10px;
   background-color: white;
-  margin: 0 5px;
+  margin: 0 0px;
 }
 .resultContainer {
-  height: calc(100vh - 80px);
+  height: calc(100vh - 110px);
 }
 .title {
   margin: 10px 0;
@@ -225,5 +362,9 @@ export default {
   position: absolute;
   bottom: 10px;
   right: 10px;
+}
+.restrict {
+  overflow-y: auto;
+  height: calc(100vh - 190px);
 }
 </style>

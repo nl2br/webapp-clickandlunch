@@ -38,7 +38,6 @@ export const actions = {
     console.log('fetch')
     try {
       const res = await api.auth.me()
-      console.log('TCL: fetch -> res', res)
       commit('AUTH_SUCCESS', getAuthToken())
       commit('SET_USER', res.data.result)
       // see if this user have a store
