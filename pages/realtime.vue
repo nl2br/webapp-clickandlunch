@@ -7,19 +7,19 @@
             <v-layout row wrap>
               <v-flex xs12 class="title">
                 <p>
-                  Commandes
+                  Waiting
                   <br />
-                  en attentes
+                  orders
                 </p>
               </v-flex>
-              <v-flex v-if="newOrder.length" xs12 class="restrict">
+              <v-flex v-if="pendingOrders.length" xs12 class="restrict">
                 <v-card
-                  v-for="order in sortable(newOrder)"
+                  v-for="order in sortable(pendingOrders)"
                   :key="order.id"
                   class="mb-2"
                   :class="
                     `${progressBarColor(
-                      updateProgressBar(order.date, order.recoveryTime)
+                      progressPercent(order.date, order.recoveryTime)
                     )} lighten-5`
                   "
                 >
@@ -36,12 +36,12 @@
                       class="mt-1 mb-2"
                       :color="
                         progressBarColor(
-                          updateProgressBar(order.date, order.recoveryTime)
+                          progressPercent(order.date, order.recoveryTime)
                         )
                       "
                       height="15"
                       :value="
-                        `${updateProgressBar(order.date, order.recoveryTime)}`
+                        `${progressPercent(order.date, order.recoveryTime)}`
                       "
                     ></v-progress-linear>
                     <v-divider></v-divider>
@@ -57,8 +57,48 @@
                         {{ product.quantity }} x {{ product.Product.name }}
                       </li>
                     </ul>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          flat
+                          icon
+                          color="error"
+                          small
+                          class="fly-button-refuse"
+                          v-on="on"
+                        >
+                          <v-icon dark @click="refuseOrder(order.id)">
+                            highlight_off
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Refuse order</span>
+                    </v-tooltip>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          flat
+                          icon
+                          dark
+                          color="success"
+                          small
+                          class="fly-button-accept"
+                          v-on="on"
+                        >
+                          <v-icon dark @click="acceptOrder(order)">
+                            check_circle_outline
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Accept order</span>
+                    </v-tooltip>
                   </v-card-text>
                 </v-card>
+              </v-flex>
+              <v-flex v-else style="position:relative">
+                <v-icon class="icon-column rotate" color="grey lighten-2">
+                  hourglass_empty
+                </v-icon>
               </v-flex>
             </v-layout>
           </v-container>
@@ -67,13 +107,83 @@
           <v-container grid-list-md pa-0>
             <v-flex xs12 class="title">
               <p>
-                Commandes
+                Orders
                 <br />
-                en préparation
+                in progress
               </p>
             </v-flex>
             <v-layout row wrap>
-              <v-flex xs12 class="restrict"></v-flex>
+              <v-flex v-if="inProgressOrders.length" xs12 class="restrict">
+                <v-card
+                  v-for="order in sortable(inProgressOrders)"
+                  :key="order.id"
+                  class="mb-2"
+                  :class="
+                    `${progressBarColor(
+                      progressPercent(order.date, order.recoveryTime)
+                    )} lighten-5`
+                  "
+                >
+                  <v-card-text>
+                    <p class="mb-1">{{ order.orderNumber }}</p>
+                    <v-divider></v-divider>
+                    <p class="mb-0 mt-1">
+                      Recovery time : {{ order.recoveryTime }}
+                    </p>
+                    <p class="mb-1 mt-0">
+                      Time left: {{ timeLeft(order.recoveryTime, order.id) }}
+                    </p>
+                    <v-progress-linear
+                      class="mt-1 mb-2"
+                      :color="
+                        progressBarColor(
+                          progressPercent(order.date, order.recoveryTime)
+                        )
+                      "
+                      height="15"
+                      :value="
+                        `${progressPercent(order.date, order.recoveryTime)}`
+                      "
+                    ></v-progress-linear>
+                    <v-divider></v-divider>
+                    <ul class="mt-2">
+                      <li
+                        v-for="product in order.OrderDetails"
+                        :key="
+                          Math.floor(Math.random() * (1000 - 1) + 1) +
+                            '-' +
+                            product.id
+                        "
+                      >
+                        {{ product.quantity }} x {{ product.Product.name }}
+                      </li>
+                    </ul>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          flat
+                          icon
+                          dark
+                          color="success"
+                          small
+                          class="fly-button-accept"
+                          v-on="on"
+                        >
+                          <v-icon dark @click="completeOrder(order)">
+                            check_circle_outline
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Order is ready for delevery</span>
+                    </v-tooltip>
+                  </v-card-text>
+                </v-card>
+              </v-flex>
+              <v-flex v-else style="position:relative">
+                <v-icon class="icon-column " color="grey lighten-2">
+                  local_dining
+                </v-icon>
+              </v-flex>
             </v-layout>
           </v-container>
         </v-flex>
@@ -81,13 +191,63 @@
           <v-container grid-list-md pa-0>
             <v-flex xs12 class="title">
               <p>
-                Commandes
+                Completed
                 <br />
-                terminées
+                orders
               </p>
             </v-flex>
             <v-layout row wrap>
-              <v-flex xs12 class="restrict"></v-flex>
+              <v-flex v-if="completedOrders.length" xs12 class="restrict">
+                <v-card
+                  v-for="order in sortable(completedOrders)"
+                  :key="order.id"
+                  class="mb-2"
+                >
+                  <v-card-text>
+                    <p class="mb-1">{{ order.orderNumber }}</p>
+                    <v-divider></v-divider>
+                    <p class="mb-0 mt-1">
+                      Recovery time : {{ order.recoveryTime }}
+                    </p>
+                    <v-divider></v-divider>
+                    <ul class="mt-2">
+                      <li
+                        v-for="product in order.OrderDetails"
+                        :key="
+                          Math.floor(Math.random() * (1000 - 1) + 1) +
+                            '-' +
+                            product.id
+                        "
+                      >
+                        {{ product.quantity }} x {{ product.Product.name }}
+                      </li>
+                    </ul>
+                    <v-tooltip top>
+                      <template v-slot:activator="{ on }">
+                        <v-btn
+                          flat
+                          icon
+                          dark
+                          color="success"
+                          small
+                          class="fly-button-accept"
+                          v-on="on"
+                        >
+                          <v-icon dark @click="deliveredOrder(order.id)">
+                            face
+                          </v-icon>
+                        </v-btn>
+                      </template>
+                      <span>The customer gets his order</span>
+                    </v-tooltip>
+                  </v-card-text>
+                </v-card>
+              </v-flex>
+              <v-flex v-else style="position:relative">
+                <v-icon class="icon-column " color="grey lighten-2">
+                  face
+                </v-icon>
+              </v-flex>
             </v-layout>
           </v-container>
         </v-flex>
@@ -108,6 +268,7 @@
             name="fakeRecoveryTime"
             label="Recovery Time"
             type="text"
+            placeholder="12:30"
           ></v-text-field>
         </v-card-text>
         <v-divider></v-divider>
@@ -156,7 +317,8 @@
 
 <script>
 import axios from 'axios'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
+
 import io from 'socket.io-client'
 import { baseURL } from '~/config'
 let socket = null
@@ -164,9 +326,11 @@ let socket = null
 export default {
   data() {
     return {
-      newOrder: [],
+      pendingOrders: [],
+      inProgressOrders: [],
+      completedOrders: [],
       dialog: false,
-      fakeRecoveryTime: null,
+      fakeRecoveryTime: '',
       fakeProductsList: [],
       fakeOrderProducts: [],
       snackbar: {
@@ -183,8 +347,26 @@ export default {
   computed: {
     ...mapGetters({
       getProduct: 'product/getProduct',
-      getOrders: 'order/getOrders'
+      getPendingOrders: 'order/getPendingOrders',
+      getInProgressOrders: 'order/getInProgressOrders',
+      getCompletedOrders: 'order/getCompletedOrders'
+    }),
+    ...mapState({
+      pendingOrdersState: state => state.order.pendingOrders,
+      inProgressOrdersState: state => state.order.inProgressOrders,
+      completedOrdersState: state => state.order.completedOrders
     })
+  },
+  watch: {
+    pendingOrdersState: function(oldValue, newValue) {
+      this.pendingOrders = this.getPendingOrders
+    },
+    inProgressOrdersState: function(oldValue, newValue) {
+      this.inProgressOrders = this.getInProgressOrders
+    },
+    completedOrdersState: function(oldValue, newValue) {
+      this.completedOrders = this.getCompletedOrders
+    }
   },
   created() {
     // "now" update every second
@@ -209,7 +391,6 @@ export default {
     // when the server send an order, catch it
     socket.on('order', data => {
       this.$store.dispatch('order/addOrder', data)
-      // this.newOrder.push(data)
       // launch success message
       this.snackbar.message = 'New order receiving !'
       this.snackbar.color = 'success'
@@ -225,9 +406,44 @@ export default {
   },
   mounted: async function() {
     await this.getProductsList()
-    this.getOrdersList()
+    this.getPendingOrdersList()
+    this.getInProgressOrdersList()
+    this.getCompletedOrdersList()
   },
   methods: {
+    getPendingOrdersList() {
+      this.pendingOrders = this.getPendingOrders
+    },
+    getInProgressOrdersList() {
+      this.inProgressOrders = this.getInProgressOrders
+    },
+    getCompletedOrdersList() {
+      this.completedOrders = this.getCompletedOrders
+    },
+    /**
+     * Change the status of the order to FINISHED
+     */
+    async completeOrder(order) {
+      await this.$store.dispatch('order/completed', order)
+    },
+    /**
+     * Remove the order from the state
+     */
+    refuseOrder(orderId) {
+      this.$store.dispatch('order/remove', orderId)
+    },
+    /**
+     * Remove the order from the state
+     */
+    deliveredOrder(orderId) {
+      this.$store.dispatch('order/removeCompleted', orderId)
+    },
+    /**
+     * Change the status of the order to INPROGRESS
+     */
+    async acceptOrder(order) {
+      await this.$store.dispatch('order/accept', order)
+    },
     /**
      * Sort the orders on their recovery time
      * @params {Array}
@@ -247,7 +463,6 @@ export default {
       const seconds = Math.floor(
         (endDate.getTime() - this.now.getTime()) / 1000
       )
-      console.log('TCL: timeLeft -> seconds', seconds)
       if (seconds > 0) {
         time = new Date(seconds * 1000).toISOString().substr(11, 8)
       } else {
@@ -266,13 +481,8 @@ export default {
         0
       )
     },
-    updateProgressBar(start, end) {
-      console.log('TCL: updateProgressBar -> end', end)
-      console.log('TCL: updateProgressBar -> start', start)
+    progressPercent(start, end) {
       const endTime = this.transformEndTimeToEndDate(end)
-      console.log('TCL: updateProgressBar -> endTime', endTime)
-      console.log('TCL: updateProgressBar -> this.now', this.now)
-
       const interval = Math.floor(
         ((this.now.getTime() - Date.parse(start)) /
           (endTime.getTime() - Date.parse(start))) *
@@ -292,22 +502,6 @@ export default {
         color = 'deep-orange'
       }
       return color
-    },
-    getOrdersList() {
-      this.newOrder = this.getOrders
-    },
-    /**
-     * Search the list of products in store
-     * if not in store send a request to the API
-     */
-    async getProductsList() {
-      this.fakeProductsList = this.$store.state.product.products
-      if (this.fakeProductsList.length === 0) {
-        this.fakeProductsList = await this.$store.dispatch(
-          'product/getProductsList',
-          this.$store.state.shop.shop.id
-        )
-      }
     },
     /**
      * Send a fake order
@@ -334,6 +528,19 @@ export default {
         return
       }
       this.dialog = !this.dialog
+    },
+    /**
+     * Search the list of products in store
+     * if not in store send a request to the API
+     */
+    async getProductsList() {
+      this.fakeProductsList = this.$store.state.product.products
+      if (this.fakeProductsList.length === 0) {
+        this.fakeProductsList = await this.$store.dispatch(
+          'product/getProductsList',
+          this.$store.state.shop.shop.id
+        )
+      }
     }
   }
 }
@@ -351,6 +558,8 @@ export default {
 }
 .title {
   margin: 10px 0;
+  display: block;
+  height: 50px;
 }
 .title p {
   text-align: center;
@@ -363,8 +572,51 @@ export default {
   bottom: 10px;
   right: 10px;
 }
+.fly-button-accept {
+  position: absolute;
+  top: 3px;
+  right: 0px;
+}
+.fly-button-refuse {
+  position: absolute;
+  top: 3px;
+  right: 40px;
+}
 .restrict {
   overflow-y: auto;
   height: calc(100vh - 190px);
+}
+
+.icon-column {
+  /* position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px; */
+  position: absolute;
+  top: 50px;
+  left: 46%;
+}
+.rotate {
+  -webkit-animation: spin 4s linear infinite;
+  -moz-animation: spin 4s linear infinite;
+  animation: spin 4s linear infinite;
+}
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 </style>
