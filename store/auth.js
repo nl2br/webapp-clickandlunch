@@ -106,6 +106,12 @@ export const actions = {
     commit('AUTH_LOGOUT')
     // reset shop store
     commit('shop/SET_SHOP', null, { root: true })
+    // reset product store
+    commit('product/SET_PRODUCTS', [], { root: true })
+    // reset order store
+    commit('order/SET_PENDING_ORDERS', [], { root: true })
+    commit('order/SET_INPROGRESS_ORDERS', [], { root: true })
+    commit('order/SET_COMPLETED_ORDERS', [], { root: true })
     return Promise.resolve()
   }
 }
