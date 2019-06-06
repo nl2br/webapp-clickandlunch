@@ -10,6 +10,9 @@
                   Waiting
                   <br />
                   orders
+                  <span v-if="pendingOrders.length">
+                    ({{ pendingOrders.length }})
+                  </span>
                 </p>
               </v-flex>
               <v-flex v-if="pendingOrders.length" xs12 class="restrict">
@@ -110,6 +113,9 @@
                 Orders
                 <br />
                 in progress
+                <span v-if="inProgressOrders.length">
+                  ({{ inProgressOrders.length }})
+                </span>
               </p>
             </v-flex>
             <v-layout row wrap>
@@ -194,6 +200,9 @@
                 Completed
                 <br />
                 orders
+                <span v-if="completedOrders.length">
+                  ({{ completedOrders.length }})
+                </span>
               </p>
             </v-flex>
             <v-layout row wrap>
@@ -375,34 +384,9 @@ export default {
     setInterval(() => (this.now = new Date()), 1000)
     console.log('TCL: created -> created', this.now)
   },
-  /**
-   * Create the connection with the server througth socketio
-   */
+
   beforeMount() {
-    // connect to the socket
-    socket = io(baseURL + '/clickandlunch', { path: '/calsocketio' })
-    // create the relation between the shop ID and the socket ID
-    socket.emit('register', this.$store.state.shop.shop.id)
-    // when server send a message, catch it
-    socket.on('message', message => {
-      console.log('Le serveur a un message pour vous : ', message)
-    })
-
-    // when the server send an order, catch it
-    socket.on('order', data => {
-      this.$store.dispatch('order/addOrder', data)
-      // launch success message
-      this.snackbar.message = 'New order receiving !'
-      this.snackbar.color = 'success'
-      this.snackbar.visible = true
-      this.loading = false
-      this.productCreated = true
-    })
-
-    // catch socketio error
-    socket.on('socket error', function(err) {
-      console.log('error socket', err)
-    })
+    this.launchSocketIoConnection()
   },
   mounted: async function() {
     await this.getProductsList()
@@ -411,6 +395,35 @@ export default {
     this.getCompletedOrdersList()
   },
   methods: {
+    /**
+     * Create the connection with the server througth socketio
+     */
+    launchSocketIoConnection() {
+      // connect to the socket
+      socket = io(baseURL + '/clickandlunch', { path: '/calsocketio' })
+      // create the relation between the shop ID and the socket ID
+      socket.emit('register', this.$store.state.shop.shop.id)
+      // when server send a message, catch it
+      socket.on('message', message => {
+        console.log('Le serveur a un message pour vous : ', message)
+      })
+
+      // when the server send an order, catch it
+      socket.on('order', data => {
+        this.$store.dispatch('order/addOrder', data)
+        // launch success message
+        this.snackbar.message = 'New order receiving !'
+        this.snackbar.color = 'success'
+        this.snackbar.visible = true
+        this.loading = false
+        this.productCreated = true
+      })
+
+      // catch socketio error
+      socket.on('socket error', function(err) {
+        console.log('error socket', err)
+      })
+    },
     getPendingOrdersList() {
       this.pendingOrders = this.getPendingOrders
     },

@@ -1,7 +1,6 @@
 import VuetifyLoaderPlugin from 'vuetify-loader/lib/plugin'
 import pkg from './package'
 
-// if (process.env.NODE_ENV !== 'production') require('dotenv').config()
 require('dotenv').config()
 
 export default {
@@ -51,32 +50,8 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    // '@nuxtjs/axios'
-    // '@nuxtjs/auth'
-    '@nuxtjs/dotenv'
-  ],
-  // auth: {
-  //   redirect: {
-  //     login: '/',
-  //     logout: '/',
-  //     callback: '/',
-  //     home: '/dashboard'
-  //   },
-  //   strategies: {
-  //     local: {
-  //       endpoints: {
-  //         login: { url: '/auth/login', method: 'post', propertyName: 'token' },
-  //         logout: false,
-  //         user: { url: '/auth/me', method: 'get', propertyName: 'data' }
-  //       },
-  //       // tokenRequired: true,
-  //       tokenType: 'x-auth-token'
-  //     }
-  //   },
-  //   cookie: false
-  // },
+  modules: ['@nuxtjs/dotenv'],
+
   /*
    ** Axios module configuration
    */
