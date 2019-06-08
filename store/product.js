@@ -70,5 +70,6 @@ export const actions = {
 }
 
 export const getters = {
-  getProduct: state => id => state.products.find(product => product.id === id)
+  getProduct: state => id => state.products.find(product => product.id === id),
+  hasProduct: state => !!state.products.length
 }

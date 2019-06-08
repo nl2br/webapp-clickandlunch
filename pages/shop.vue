@@ -97,10 +97,11 @@
                 v-model="formInput.postalCode"
                 name="postalCode"
                 label="Postal Code"
-                :rules="[rules.required]"
+                :rules="[rules.required, rules.number]"
                 type="text"
                 required
                 class="pl-2"
+                counter="5"
               ></v-text-field>
             </v-flex>
           </v-layout>
@@ -109,7 +110,7 @@
             v-model="formInput.phoneNumber"
             name="phoneNumber"
             label="Phone number"
-            :rules="[rules.required]"
+            :rules="[rules.required, rules.number]"
             type="text"
             required
             counter="10"
@@ -316,6 +317,7 @@ export default {
               this.errors.push(res.message)
               this.formHasErrors = true
               this.loading = false
+              this.$vuetify.goTo('#form-create-shop')
               return
             }
           } catch (error) {
@@ -328,7 +330,11 @@ export default {
           this.snackbar.visible = true
           this.loading = false
           this.reloadForm()
+        } else {
+          this.$vuetify.goTo('#form-create-shop')
         }
+      } else {
+        this.$vuetify.goTo('#form-create-shop')
       }
     },
     modifyShop() {

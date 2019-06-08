@@ -46,7 +46,7 @@ export const actions = {
    * @param {Object} context
    * @param {Object} user
    */
-  async findShop({ commit, rootState }, data) {
+  async findShop({ commit, dispatch, rootState }, data) {
     let vendor
     try {
       vendor = await api.vendor.get(data.user.id)
@@ -68,6 +68,10 @@ export const actions = {
       }
       // add shop to the store
       commit('SET_SHOP', shop.data)
+      // see if this shop have products
+      await dispatch('product/getProductsList', vendor.data.shopId, {
+        root: true
+      })
     }
   }
 }

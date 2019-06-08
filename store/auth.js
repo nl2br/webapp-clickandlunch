@@ -119,5 +119,6 @@ export const actions = {
 export const getters = {
   isLoggedIn: state => !!state.token,
   authStatus: state => state.status,
-  wizardStep: state => state.wizardStep
+  wizardStep: state => state.wizardStep,
+  userInfos: state => state.user
 }

@@ -1,7 +1,7 @@
 <template>
   <v-flex xs12 sm8 md4>
     <v-card class="elevation-12">
-      <v-toolbar dark color="primary">
+      <v-toolbar>
         <v-toolbar-title>{{ $t('register.title') }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <LanguageSwitcher />
@@ -72,7 +72,15 @@
             required
           ></v-text-field>
           <v-spacer></v-spacer>
-          <v-btn type="submit" color="info" form="form-register-user" block>
+          <v-btn
+            type="submit"
+            color="info"
+            form="form-register-user"
+            block
+            :loading="loading"
+            :disabled="loading"
+            @click="loader = 'loading'"
+          >
             Create my account
           </v-btn>
         </v-card-text>
@@ -140,7 +148,9 @@ export default {
         },
         siret: v => (v && v.length === 14) || 'Siret must be 14 numbers',
         number: v => (Number(v) ? true : false || 'Number only')
-      }
+      },
+      loader: null,
+      loading: false
     }
   },
   layout: 'login',
@@ -161,6 +171,7 @@ export default {
      * Verify all inputs and send POST user request to the API
      */
     async formSubmit() {
+      this.loading = true
       // reset
       this.formHasErrors = false
       this.errors = []
@@ -169,6 +180,7 @@ export default {
       Object.keys(this.formInput).forEach(f => {
         if (!this.formInput[f]) {
           this.formHasErrors = true
+          this.loading = false
           this.errors.push(`Error on ${f}`)
         }
         this.$refs[f].validate(true)
@@ -189,6 +201,7 @@ export default {
           if (res.status && res.status !== 201) {
             this.errors = res.message.split('\n')
             this.formHasErrors = true
+            this.loading = false
           }
         } catch (error) {
           console.log(error)

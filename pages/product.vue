@@ -43,16 +43,16 @@
                       </v-btn>
                     </v-flex>
                   </v-layout>
-                  <v-flex xs12 md4>
+                  <v-flex xs12>
                     <v-flex
                       v-if="photo !== ''"
-                      :class="{ 'mr-4': $vuetify.breakpoint.mdAndUp }"
+                      :class="{ 'mr-1': $vuetify.breakpoint.mdAndUp }"
                     >
                       <v-img :src="photo" height="300" class="mb-4"></v-img>
                     </v-flex>
                     <v-flex
                       v-else
-                      :class="{ 'mr-4': $vuetify.breakpoint.mdAndUp }"
+                      :class="{ 'mr-1': $vuetify.breakpoint.mdAndUp }"
                     >
                       <div class="dropbox">
                         <input
@@ -76,7 +76,7 @@
                       </div>
                     </v-flex>
                   </v-flex>
-                  <v-flex xs12 md8>
+                  <v-flex xs12>
                     <v-text-field
                       ref="name"
                       v-model="formAddProduct.name"
@@ -205,6 +205,12 @@
           </template>
         </v-data-table>
       </template>
+      <template v-else>
+        <p class="arrow-text">
+          Please create your first product
+          <img src="/arrow.png" width="100" alt="" class="arrow" />
+        </p>
+      </template>
     </v-flex>
     <!-- Snackbar -->
     <v-snackbar
@@ -327,6 +333,7 @@ export default {
         )
         if (!this.formAddProduct[f]) {
           this.formHasErrors = true
+          this.$vuetify.goTo('#formCreateProduct')
           this.loading = false
           this.errors.push(`Error on ${f}`)
         }
@@ -374,6 +381,7 @@ export default {
             if (res.status && res.status !== 201) {
               this.errors.push(res.message)
               this.formHasErrors = true
+              this.$vuetify.goTo('#formCreateProduct')
               this.loading = false
               return
             }
@@ -423,11 +431,13 @@ export default {
         if (this.imageToUpload.size > maxUpload) {
           this.errors.push('error on file size exceced the 1.5 mo authorized')
           this.formHasErrors = true
+          this.$vuetify.goTo('#formCreateProduct')
         }
 
         if (this.formHasErrors) {
           this.imageToUpload = null
           this.isInitial = true
+          this.$vuetify.goTo('#formCreateProduct')
         } else {
           this.isInitial = false
           this.errors = []
@@ -451,5 +461,14 @@ export default {
 /* .slide-fade-leave-active below version 2.1.8 */ {
   transform: translateY(10px);
   opacity: 0;
+}
+.arrow {
+  transform: rotate(90deg) scaleX(-1);
+  width: 50px;
+}
+.arrow-text {
+  text-align: right;
+  margin-right: 90px;
+  font-size: 20px;
 }
 </style>
