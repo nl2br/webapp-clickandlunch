@@ -390,9 +390,13 @@ export default {
   },
   mounted: async function() {
     await this.getProductsList()
-    this.getPendingOrdersList()
-    this.getInProgressOrdersList()
-    this.getCompletedOrdersList()
+    // this.getPendingOrdersList()
+    // this.getInProgressOrdersList()
+    // this.getCompletedOrdersList()
+    await this.$store.dispatch(
+      'order/getOrders',
+      this.$store.state.shop.shop.id
+    )
   },
   methods: {
     /**
@@ -442,8 +446,8 @@ export default {
     /**
      * Remove the order from the state
      */
-    refuseOrder(orderId) {
-      this.$store.dispatch('order/remove', orderId)
+    async refuseOrder(orderId) {
+      await this.$store.dispatch('order/remove', orderId)
     },
     /**
      * Remove the order from the state

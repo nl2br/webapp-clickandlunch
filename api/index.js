@@ -42,6 +42,7 @@ export default {
   },
   order: {
     get: data => axios.get('/orders/' + data),
+    getOrders: data => axios.get('/orders/shops/' + data),
     changeState: data =>
       axios.put('/orders/' + data.orderId, { state: data.state })
   }

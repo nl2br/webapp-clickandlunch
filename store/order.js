@@ -43,8 +43,24 @@ export const mutations = {
 }
 
 export const actions = {
-  remove({ commit }, data) {
-    commit('REMOVE_PENDING_ORDER', data)
+  async remove({ commit }, orderId) {
+    console.log('TCL: remove -> data', orderId)
+    // change the state of the order in DB
+    let res
+    try {
+      const send = {
+        orderId: orderId,
+        state: 'CANCELED'
+      }
+      res = await api.order.changeState(send)
+      console.log('TCL: create -> res', res)
+    } catch (error) {
+      return {
+        status: error.response.status,
+        message: error.response.data.message
+      }
+    }
+    commit('REMOVE_PENDING_ORDER', orderId)
   },
   removeCompleted({ commit }, data) {
     commit('REMOVE_COMPLETED_ORDER', data)
@@ -99,10 +115,38 @@ export const actions = {
         message: error.response.data.message
       }
     }
-    // add the order in the inprogress
+    // add the order in the completed
     commit('ADD_COMPLETED_ORDER', order)
     // remove the order of the pending
     commit('REMOVE_INPROGRESS_ORDER', order.id)
+  },
+  /**
+   * Get all orders of a shop
+   * @param {Object} context
+   * @param {Object} shopId
+   */
+  async getOrders({ commit }, shopId) {
+    let res
+    try {
+      res = await api.order.getOrders(shopId)
+      console.log('TCL: getOrders -> res', res)
+    } catch (error) {
+      return {
+        status: error.response.status,
+        message: error.response.data.message
+      }
+    }
+    const ordersNotFinished = res.data.filter(
+      order => order.state !== 'FINISHED'
+    )
+    commit(
+      'SET_PENDING_ORDERS',
+      ordersNotFinished.filter(order => order.state === 'DEFAULT')
+    )
+    commit(
+      'SET_INPROGRESS_ORDERS',
+      ordersNotFinished.filter(order => order.state === 'INPROGRESS')
+    )
   }
 }
 
